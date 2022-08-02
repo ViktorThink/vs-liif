@@ -13,8 +13,8 @@ Training Real-World Blind Super-Resolution with Pure Synthetic Data, based on ht
 
 ## Installation
 ```
-pip install --upgrade vsrealesrgan
-python -m vsrealesrgan
+pip install --upgrade git+https://github.com/ViktorThink/vs-liif
+python -m vsliif
 ```
 
 

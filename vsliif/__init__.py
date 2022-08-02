@@ -86,7 +86,7 @@ def RealESRGAN(
         raise vs.Error('RealESRGAN: model must be 0, 1, 2, or 3')
 
     if osp.getsize(osp.join(dir_name, 'realesr-animevideov3.onnx')) == 0:
-        raise vs.Error("RealESRGAN: model files have not been downloaded. run 'python -m vsrealesrgan' first")
+        raise vs.Error("RealESRGAN: model files have not been downloaded. run 'python -m vsliif' first")
 
     if model == 0:  # x2 RRDBNet model
         model_name = 'RealESRGAN_x2plus.onnx'
