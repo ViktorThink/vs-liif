@@ -128,7 +128,7 @@ def RealESRGAN(
         # logging.info('NUMPY')
         # logging.info(str(np.shape(img)))
         # logging.info(str(img))
-        # img = torch.from_numpy(img[0])
+        img = torch.from_numpy(img[0])
         # logging.info("torch")
         # logging.info(str(img.shape))
 
