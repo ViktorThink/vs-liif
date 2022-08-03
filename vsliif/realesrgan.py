@@ -5,6 +5,8 @@ import numpy as np
 import onnxruntime as ort
 import vapoursynth as vs
 
+import logging
+
 dir_name = osp.dirname(__file__)
 
 
@@ -145,6 +147,9 @@ def RealESRGAN(
             output = session.run(None, {'input': img})[0]
         else:
             output = mod_pad(img, modulo, session, scale)
+            
+        logging.info("output")
+        logging.info(str(np.shape(output)))
 
         return ndarray_to_frame(output, f[1].copy())
 
