@@ -15,6 +15,7 @@ Training Real-World Blind Super-Resolution with Pure Synthetic Data, based on ht
 ```
 pip install --upgrade git+https://github.com/ViktorThink/vs-liif
 python -m vsliif
+pip install git+https://github.com/ViktorThink/liif
 ```
 
 

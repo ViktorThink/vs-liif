@@ -4,7 +4,7 @@ import os.path as osp
 import numpy as np
 import onnxruntime as ort
 import vapoursynth as vs
-import logging
+
 dir_name = osp.dirname(__file__)
 
 
@@ -138,11 +138,6 @@ def RealESRGAN(
 
     def realesrgan(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
         img = frame_to_ndarray(f[0])
-        logging.info('NUMPY')
-        logging.info(str(img))
-        raise
-
-
 
         if tile_w > 0 and tile_h > 0:
             output = tile_process(img, scale, tile_w, tile_h, tile_pad, modulo, session)
