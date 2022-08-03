@@ -15,8 +15,8 @@ dir_name = osp.dirname(__file__)
 def RealESRGAN(
     clip: vs.VideoNode,
     model: int = 3,
-    tile_w: int = 0,
-    tile_h: int = 0,
+    width: int = 100,
+    height: int = 100,
     tile_pad: int = 10,
     provider: int = 1,
     device_id: int = 0,
@@ -134,7 +134,7 @@ def RealESRGAN(
 
 
 
-        output = process_image.process_frame(model, img, "100,100")
+        output = process_image.process_frame(model, img, (height, width))
         
         output = torch.unsqueeze(output, 0)
         output = output.cpu().detach().numpy()
@@ -144,7 +144,7 @@ def RealESRGAN(
         
         return ndarray_to_frame(output, f[1].copy())
 
-    new_clip = clip.std.BlankClip(width=clip.width * scale, height=clip.height * scale)
+    new_clip = clip.std.BlankClip(width=width, height=height)
     return new_clip.std.ModifyFrame(clips=[clip, new_clip], selector=realesrgan)
 
 
@@ -159,78 +159,3 @@ def ndarray_to_frame(array: np.ndarray, frame: vs.VideoFrame) -> vs.VideoFrame:
         np.copyto(np.asarray(frame[plane]), array[plane, :, :])
     return frame
 
-
-def tile_process(img: np.ndarray, scale: int, tile_w: int, tile_h: int, tile_pad: int, modulo: int, session: ort.InferenceSession) -> np.ndarray:
-    batch, channel, height, width = img.shape
-    output_shape = (batch, channel, height * scale, width * scale)
-
-    # start with black image
-    output = np.zeros_like(img, shape=output_shape)
-
-    tiles_x = math.ceil(width / tile_w)
-    tiles_y = math.ceil(height / tile_h)
-
-    # loop over all tiles
-    for y in range(tiles_y):
-        for x in range(tiles_x):
-            # extract tile from input image
-            ofs_x = x * tile_w
-            ofs_y = y * tile_h
-
-            # input tile area on total image
-            input_start_x = ofs_x
-            input_end_x = min(ofs_x + tile_w, width)
-            input_start_y = ofs_y
-            input_end_y = min(ofs_y + tile_h, height)
-
-            # input tile area on total image with padding
-            input_start_x_pad = max(input_start_x - tile_pad, 0)
-            input_end_x_pad = min(input_end_x + tile_pad, width)
-            input_start_y_pad = max(input_start_y - tile_pad, 0)
-            input_end_y_pad = min(input_end_y + tile_pad, height)
-
-            # input tile dimensions
-            input_tile_width = input_end_x - input_start_x
-            input_tile_height = input_end_y - input_start_y
-
-            input_tile = img[:, :, input_start_y_pad:input_end_y_pad, input_start_x_pad:input_end_x_pad]
-
-            # process tile
-            if input_tile.shape[2] % modulo == 0 and input_tile.shape[3] % modulo == 0:
-                output_tile = session.run(None, {'input': input_tile})[0]
-            else:
-                output_tile = mod_pad(input_tile, modulo, session, scale)
-
-            # output tile area on total image
-            output_start_x = input_start_x * scale
-            output_end_x = input_end_x * scale
-            output_start_y = input_start_y * scale
-            output_end_y = input_end_y * scale
-
-            # output tile area without padding
-            output_start_x_tile = (input_start_x - input_start_x_pad) * scale
-            output_end_x_tile = output_start_x_tile + input_tile_width * scale
-            output_start_y_tile = (input_start_y - input_start_y_pad) * scale
-            output_end_y_tile = output_start_y_tile + input_tile_height * scale
-
-            # put tile into output image
-            output[:, :, output_start_y:output_end_y, output_start_x:output_end_x] = output_tile[
-                :, :, output_start_y_tile:output_end_y_tile, output_start_x_tile:output_end_x_tile
-            ]
-
-    return output
-
-
-def mod_pad(img: np.ndarray, modulo: int, session: ort.InferenceSession, scale: int) -> np.ndarray:
-    mod_pad_h, mod_pad_w = 0, 0
-    h, w = img.shape[2:]
-
-    if h % modulo != 0:
-        mod_pad_h = modulo - h % modulo
-
-    if w % modulo != 0:
-        mod_pad_w = modulo - w % modulo
-
-    img = np.pad(img, ((0, 0), (0, 0), (0, mod_pad_h), (0, mod_pad_w)), 'reflect')
-    output = session.run(None, {'input': img})[0]
-    return output[:, :, : h * scale, : w * scale]
