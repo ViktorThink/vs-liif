@@ -5,6 +5,9 @@ import numpy as np
 import onnxruntime as ort
 import vapoursynth as vs
 import logging
+from liif import process_image
+
+
 dir_name = osp.dirname(__file__)
 
 
@@ -82,31 +85,15 @@ def RealESRGAN(
     if clip.format.id != vs.RGBS:
         raise vs.Error('RealESRGAN: only RGBS format is supported')
 
-    if model < 0 or model > 3:
-        raise vs.Error('RealESRGAN: model must be 0, 1, 2, or 3')
 
-    if osp.getsize(osp.join(dir_name, 'realesr-animevideov3.onnx')) == 0:
-        raise vs.Error("RealESRGAN: model files have not been downloaded. run 'python -m vsliif' first")
+        
+    model=process_image.get_model("base")
 
-    if model == 0:  # x2 RRDBNet model
-        model_name = 'RealESRGAN_x2plus.onnx'
-        scale = 2
-    elif model == 1:  # x4 RRDBNet model
-        model_name = 'RealESRGAN_x4plus.onnx'
-        scale = 4
-    elif model == 2:  # x4 RRDBNet model with 6 blocks
-        model_name = 'RealESRGAN_x4plus_anime_6B.onnx'
-        scale = 4
-    else:  # x4 VGG-style model (XS size)
-        model_name = 'realesr-animevideov3.onnx'
-        scale = 4
+
+
 
     modulo = 2 if scale == 2 else 1
 
-    model_path = osp.join(dir_name, model_name)
-
-    sess_options = ort.SessionOptions()
-    sess_options.log_severity_level = log_level
 
     cuda_ep = ('CUDAExecutionProvider', dict(device_id=device_id))
 
@@ -134,7 +121,6 @@ def RealESRGAN(
     else:
         providers = [('MIGraphXExecutionProvider', dict(device_id=device_id))]
 
-    session = ort.InferenceSession(model_path, sess_options, providers)
 
     def realesrgan(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
         img = frame_to_ndarray(f[0])
@@ -144,12 +130,7 @@ def RealESRGAN(
 
 
 
-        if tile_w > 0 and tile_h > 0:
-            output = tile_process(img, scale, tile_w, tile_h, tile_pad, modulo, session)
-        elif img.shape[2] % modulo == 0 and img.shape[3] % modulo == 0:
-            output = session.run(None, {'input': img})[0]
-        else:
-            output = mod_pad(img, modulo, session, scale)
+        output = process_image.process_frame(model, image, "200,100", None)
 
         return ndarray_to_frame(output, f[1].copy())
 
