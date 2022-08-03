@@ -125,22 +125,23 @@ def RealESRGAN(
 
     def realesrgan(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
         img = frame_to_ndarray(f[0])
-        logging.info('NUMPY')
-        logging.info(str(np.shape(img)))
-        logging.info(str(img))
-        img = torch.from_numpy(img[0])
-        logging.info("torch")
-        logging.info(str(img.shape))
+        # logging.info('NUMPY')
+        # logging.info(str(np.shape(img)))
+        # logging.info(str(img))
+        # img = torch.from_numpy(img[0])
+        # logging.info("torch")
+        # logging.info(str(img.shape))
 
 
 
         output = process_image.process_frame(model, img, (height, width))
         
-        # output = torch.unsqueeze(output, 0) #done in ndarray_to_frame
+        output = torch.unsqueeze(output, 0)
         output = output.cpu().detach().numpy()
         
-        logging.info('Output')
-        logging.info(str(np.shape(output)))
+        # logging.info('Output')
+        # logging.info(str(np.shape(output)))
+        # logging.info(str(output))
         
         return ndarray_to_frame(output, f[1].copy())
 
