@@ -88,7 +88,7 @@ def RealESRGAN(
 
         
     model=process_image.get_model("base")
-
+    scale = 2
 
 
 
