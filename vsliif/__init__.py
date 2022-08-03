@@ -7,6 +7,7 @@ import vapoursynth as vs
 import logging
 from liif import process_image
 
+import torch
 
 dir_name = osp.dirname(__file__)
 
@@ -130,12 +131,17 @@ def RealESRGAN(
         img = torch.from_numpy(img[0])
         logging.info("torch")
         logging.info(str(img.shape))
-        raise
 
 
 
         output = process_image.process_frame(model, img, "200,100", None)
-
+        
+        output = torch.unsqueeze(output, 0)
+        output = output.cpu().detach().numpy()
+        
+        logging.info('Output')
+        logging.info(str(np.shape(output)))
+        
         return ndarray_to_frame(output, f[1].copy())
 
     new_clip = clip.std.BlankClip(width=clip.width * scale, height=clip.height * scale)
