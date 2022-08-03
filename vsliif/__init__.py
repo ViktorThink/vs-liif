@@ -125,12 +125,16 @@ def RealESRGAN(
     def realesrgan(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
         img = frame_to_ndarray(f[0])
         logging.info('NUMPY')
+        logging.info(str(np.shape(img)))
         logging.info(str(img))
+        img = torch.from_numpy(img[0])
+        logging.info("torch")
+        logging.info(str(img.shape))
         raise
 
 
 
-        output = process_image.process_frame(model, image, "200,100", None)
+        output = process_image.process_frame(model, img, "200,100", None)
 
         return ndarray_to_frame(output, f[1].copy())
 
