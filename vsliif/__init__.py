@@ -134,7 +134,7 @@ def RealESRGAN(
 
 
 
-        output = process_image.process_frame(model, img, "200,100", None)
+        output = process_image.process_frame(model, img, "100,100")
         
         output = torch.unsqueeze(output, 0)
         output = output.cpu().detach().numpy()
