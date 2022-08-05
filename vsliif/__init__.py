@@ -33,33 +33,6 @@ def liif_resize(
 
 
 
-    cuda_ep = ('CUDAExecutionProvider', dict(device_id=device_id))
-
-    if provider <= 0:
-        providers = ['CPUExecutionProvider']
-    elif provider == 1:
-        providers = [cuda_ep]
-    elif provider == 2:
-        providers = [
-            (
-                'TensorrtExecutionProvider',
-                dict(
-                    device_id=device_id,
-                    trt_max_workspace_size=trt_max_workspace_size,
-                    trt_fp16_enable=trt_fp16,
-                    trt_engine_cache_enable=trt_engine_cache,
-                    trt_engine_cache_path=trt_engine_cache_path,
-                ),
-            ),
-            cuda_ep,
-        ]
-    elif provider == 3:
-        sess_options.enable_mem_pattern = False
-        providers = [('DmlExecutionProvider', dict(device_id=device_id))]
-    else:
-        providers = [('MIGraphXExecutionProvider', dict(device_id=device_id))]
-
-
     def liif_resize_frame(n: int, f: vs.VideoFrame) -> vs.VideoFrame:
         img = frame_to_ndarray(f[0])
         # logging.info('NUMPY')
