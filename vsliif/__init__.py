@@ -17,6 +17,7 @@ def liif_resize(
     model: int = 3,
     width: int = 100,
     height: int = 100,
+    use_onnx=False,
     providers = None,
 
 ) -> vs.VideoNode:
@@ -28,8 +29,10 @@ def liif_resize(
         raise vs.Error('RealESRGAN: only RGBS format is supported')
 
 
-        
-    model=process_image.get_onnx_model("base",providers=providers)
+    if use_onnx:
+        model=process_image.get_onnx_model("base",providers=providers)
+    else:
+        model=process_image.get_model("base")
 
 
 
