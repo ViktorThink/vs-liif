@@ -19,6 +19,7 @@ def liif_resize(
     height: int = 100,
     use_onnx=False,
     providers = None,
+    onnx_cpu= False,
 
 ) -> vs.VideoNode:
 
@@ -30,7 +31,10 @@ def liif_resize(
 
 
     if use_onnx:
-        model=process_image.get_onnx_model("base",providers=providers)
+        if onnx_cpu:
+            model=process_image.get_onnx_model_cpu("base",providers=providers)
+        else:
+            model=process_image.get_onnx_model("base",providers=providers)
     else:
         model=process_image.get_model("base")
 
