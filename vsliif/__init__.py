@@ -20,6 +20,7 @@ def liif_resize(
     use_onnx=False,
     providers = None,
     onnx_cpu= False,
+    device_id=None,
 
 ) -> vs.VideoNode:
 
@@ -49,9 +50,11 @@ def liif_resize(
         # logging.info("torch")
         # logging.info(str(img.shape))
 
-
-
-        output = process_image.process_frame(model, img, (height, width))
+        if device_id != None:
+            with torch.cuda.device(device_id):
+                output = process_image.process_frame(model, img, (height, width))
+        else:
+            output = process_image.process_frame(model, img, (height, width))
         
         output = torch.unsqueeze(output, 0)
         output = output.cpu().detach().numpy()
