@@ -38,10 +38,10 @@ def liif_resize(
         else:
             model=process_image.get_onnx_model("base",providers=providers)
     else:
-        if use_fp16:
-            model.half()
+
         model=process_image.get_model("base")
-        
+        if use_fp16:
+            model.half()      
 
 
 
