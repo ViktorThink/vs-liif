@@ -58,14 +58,14 @@ def liif_resize(
         img = torch.from_numpy(img[0])
         # logging.info("torch")
         # logging.info(str(img.shape))
-        torch.cuda.empty_cache()
+        # torch.cuda.empty_cache()
         with torch.no_grad():
             with autocast():
                 if device_id != None:
                     with torch.cuda.device(device_id):
-                        output = process_image.process_frame(model, img, (height, width))
+                        output = process_image.process_frame(model, img, (height, width), use_fp16=False)
                 else:
-                    output = process_image.process_frame(model, img, (height, width))
+                    output = process_image.process_frame(model, img, (height, width), use_fp16=False)
         
         output = torch.unsqueeze(output, 0)
         output = output.cpu().detach().numpy()
