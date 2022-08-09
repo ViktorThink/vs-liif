@@ -21,6 +21,7 @@ def liif_resize(
     providers = None,
     onnx_cpu= False,
     device_id=None,
+    use_fp16=False,
 
 ) -> vs.VideoNode:
 
@@ -37,7 +38,11 @@ def liif_resize(
         else:
             model=process_image.get_onnx_model("base",providers=providers)
     else:
+        if use_fp16:
+            model.half()
         model=process_image.get_model("base")
+        
+
 
 
 
